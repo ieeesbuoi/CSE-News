@@ -7,5 +7,3 @@ A script that collects news from cs.uoi.gr
     $ pip install -r requirements.txt
     $ python collector.py
 ```
-
-

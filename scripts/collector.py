@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import urllib
 from bs4 import BeautifulSoup
 import HTMLParser
 import re
+import sys
+import generate_xml as xml
+import generate_html as html
+
 
 # function: find_new_posts()
 # ARGUMENTS: None
@@ -14,20 +19,38 @@ def find_new_posts():
 
     print("Searching for available pages...")
     urls = get_page_urls(page)    # get urls starting with index page
-    print("Found " + str(len(urls)) + " pages!")
+    print ("Found " + str(len(urls)) + " pages!")
 
     # while news page exists
-    xml_file = open("announcements.xml", "w")
-    xml_file.write("<announcements>")
-
     print("Collecting data...")
+    data = [[]]
     for url in urls:
-        print page, "/", len(urls)
-        find_page_posts(url, xml_file)    # find all posts/news of that page
-        page += 1               # go to the next page
-    xml_file.write("</announcements>")
-    xml_file.close()
+        print (str(page) + "/" + str(len(urls)), end='\r')
+        sys.stdout.flush()
+        new_data = find_page_posts(url)             # find all posts/news of that page
+        for announcement in new_data:
+            data.append(announcement)
+
+        page += 1                                    # go to the next page
     print("Data fetched succesfully!")
+
+
+    #######################################
+    # clean data
+    # save to html and xml
+    # show some analytics
+    no = 0
+    for dt in data:
+        if (not dt):
+            data.remove(dt)
+        else:
+            no += 1
+    print ("Announcements found: " + str(no))
+
+    html.generate_html(data)
+    xml.generate_xml(data)
+
+
     return
 
 
@@ -54,7 +77,7 @@ def get_page_urls(page):
 # ARGUMENTS: 'String url_of_page'
 # DESCRIPTION:
 #   Finds and prints all news of the given page
-def find_page_posts(url, xml_file):
+def find_page_posts(url):
     # get html for current page's url
     html = urllib.urlopen(url).read()
 
@@ -63,7 +86,14 @@ def find_page_posts(url, xml_file):
 
     # find all <div class"newPaging"> elements. Those elements contain post info.
     posts = soup.find_all('div', class_ = 'newPaging')
-    xml = ""
+
+    # store announcements data in array
+    # data[0] = url
+    # data[1] = date
+    # data[2] = title
+    # data[3] = id
+    data = [[]]
+
     for post in posts:
         # find links for all the news
         links = post.find_all('a')
@@ -80,30 +110,10 @@ def find_page_posts(url, xml_file):
         news_title = post_text[1]
         news_id = int(link.split("=")[-1])
 
-        save_to_xml(news_link, news_date, news_title, str(news_id), xml_file)
-    return
 
+        data.append([news_link, news_date, news_title, news_id])
+    return data
 
-def save_to_xml(url, date, title, id, xml_file):
-    xml_file.write("<announcement>")
-    xml_file.write("<url>")
-    url = url.replace("&", "&amp;")
-    xml_file.write(url)
-    xml_file.write("</url>")
-
-    xml_file.write("<date>")
-    xml_file.write(date)
-    xml_file.write("</date>")
-
-    title = title.replace("&", "&amp;")
-    xml_file.write("<title>")
-    xml_file.write(title)
-    xml_file.write("</title>")
-
-    xml_file.write("<id>")
-    xml_file.write(id)
-    xml_file.write("</id>")
-    xml_file.write("</announcement>\n")
 
 if __name__ == '__main__':
     find_new_posts()

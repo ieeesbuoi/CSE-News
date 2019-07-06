@@ -1,6 +1,22 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-git config --global user.email "you@example.com"
+import modules
+
+
+
+try:
+    from tqdm import tqdm,trange
+except:
+    modules.install("git+https://github.com/tqdm/tqdm.git@master#egg=tqdm")
+
+
+
 import urllib
-from bs4 import BeautifulSoup
+
+try:
+    from bs4 import BeautifulSoup
+except:
+    modules.install("beautifulsoup4")
+
 import HTMLParser
 import re
 
@@ -8,21 +24,22 @@ import re
 # ARGUMENTS: None
 # DESCRIPTION:
 #   Collects news from all the pages
-def find_new_posts():
+def find_new_posts(base_url,xml_file):
     # current page of posts
     page = 1
 
     print("Searching for available pages...")
-    urls = get_page_urls(page)    # get urls starting with index page
+    urls = get_page_urls(base_url,page)    # get urls starting with index page
     print("Found " + str(len(urls)) + " pages!")
 
     # while news page exists
-    xml_file = open("announcements.xml", "w")
+    xml_file = open(xml_file, "w")
     xml_file.write("<announcements>")
 
     print("Collecting data...")
-    for url in urls:
-        print page, "/", len(urls)
+    for url_i in trange(len(urls)):
+        url=urls[url_i]
+        #print page, "/", len(urls)
         find_page_posts(url, xml_file)    # find all posts/news of that page
         page += 1               # go to the next page
     xml_file.write("</announcements>")
@@ -36,11 +53,11 @@ def find_new_posts():
 # DESCRIPTION:
 #   Given a page number checks if that page exists and returns all next page urls
 #   else returns empty array
-def get_page_urls(page):
+def get_page_urls(base_url,page):
     urls = []
     while (True):
     #base url: http://cs.uoi.gr/en/index.php?menu=m5&page=1
-        url = "http://cs.uoi.gr/en/index.php?menu=m5&page=" + str(page)
+        url = base_url + str(page)
         soup = BeautifulSoup(urllib.urlopen(url).read(), "html.parser")
         posts = soup.find_all('div', class_ = 'newPaging')
         if (posts):
@@ -106,5 +123,4 @@ def save_to_xml(url, date, title, id, xml_file):
     xml_file.write("</announcement>\n")
 
 if __name__ == '__main__':
-    find_new_posts()
-
+    find_new_posts("http://cs.uoi.gr/en/index.php?menu=m5&page=","announcements.xml")

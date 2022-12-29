@@ -1,15 +1,16 @@
 # CSE-News
-A script that collects news from cs.uoi.gr
+A script that collects news from cs.uoi.gr and writes it to a database
+
 
 # Usage
 
 ```sh
-    $ pip install -r requirements.txt
-    $ python collector.py
+    $ python parser.py
+    $ #The script will automatically download and install any required package. Therefore, there is no need to manually install any package. However, python pip is required for the automatic install to work.
     $ #XML file announcements.xml should have been created
 ```
 
 # Todo
-If you are interested this tasks are open at the moment 
-- Create a script that reads XML output and puts data into a database.
+If you are interested this tasks are open at the moment
 - Update the script so that it reads only *new* announcements (ignores announcements that are already in database/xml file)
+- Find a way to install all modules before reloading because now the script reloads in every module that it can not find

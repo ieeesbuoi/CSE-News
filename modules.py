@@ -7,6 +7,10 @@ except ImportError:
     print "Please install pip to continue."
     sys.exit(1)
 
+
+# function that downloads and installs a module from pip
+# the last line reruns the program so that it can load the new modules.
+# TODO: find a better way to reload the modules so that the app does not restart in every missing module
 def install(package):
     python = sys.executable
     if hasattr(pip, 'main'):

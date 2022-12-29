@@ -1,6 +1,7 @@
 # CSE-News
 A script that collects news from cs.uoi.gr and writes it to a database
 
+
 # Usage
 
 ```sh
@@ -12,3 +13,4 @@ A script that collects news from cs.uoi.gr and writes it to a database
 # Todo
 If you are interested this tasks are open at the moment
 - Update the script so that it reads only *new* announcements (ignores announcements that are already in database/xml file)
+- Find a way to install all modules before reloading because now the script reloads in every module that it can not find
